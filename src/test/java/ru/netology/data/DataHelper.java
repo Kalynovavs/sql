@@ -24,6 +24,10 @@ public class DataHelper {
         return new AuthInfo("vasya", "qwerty123");
     }
 
+    public static AuthInfo getAuthWrongInfo() {
+        return new AuthInfo("vasya", getRandomPassword("ru"));
+    }
+
     public static String getRandomPassword(String locale) {
         Faker faker = new Faker(new Locale(locale));
         return faker.lorem().characters(8,true);
@@ -47,9 +51,7 @@ public class DataHelper {
 
         ) {
             var userData = runner.query(conn, userSQL, new BeanHandler<>(User.class),"vasya");
-            System.out.println(userData.getId());
             var authCode = runner.query(conn, authSQL, new BeanHandler<>(AuthCode.class), userData.getId());
-            System.out.println(authCode.getCode());
             return new Verification(authCode.getCode());
         } catch (Throwable err){
             System.out.println("ОШИБКА");
@@ -58,4 +60,27 @@ public class DataHelper {
         return null;
     }
 
+    public static void clearDb() {
+        var runner = new QueryRunner();
+        var foreignKey = "SET FOREIGN_KEY_CHECKS=?";
+        var clearUsers = "DELETE FROM users";
+        var clearCards = "DELETE FROM cards";
+        var clearCodes = "DELETE FROM auth_codes";
+
+        try (
+                var conn = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/app", "app", "pass"
+                );
+
+        ) {
+            runner.update(conn, foreignKey, 0);
+            runner.update(conn, clearUsers);
+            runner.update(conn, clearCards);
+            runner.update(conn, clearCodes);
+            runner.update(conn, foreignKey, 1);
+        } catch (Throwable err){
+            System.out.println("ОШИБКА");
+            System.out.println(err);
+        }
+    }
 }

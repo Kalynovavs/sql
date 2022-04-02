@@ -13,10 +13,14 @@ public class LoginPage {
     private SelenideElement loginButton = $("[data-test-id=action-login]");
     private SelenideElement errorNotification = $("[data-test-id=error-notification]");
 
-    public VerificationPage validLogin(DataHelper.AuthInfo authInfo) {
-        loginField.setValue(authInfo.getLogin());
-        passwordField.setValue(authInfo.getPassword());
+    public void auth(String login, String pass) {
+        loginField.setValue(login);
+        passwordField.setValue(pass);
         loginButton.click();
+    }
+
+    public VerificationPage validLogin(DataHelper.AuthInfo authInfo) {
+        auth(authInfo.getLogin(), authInfo.getPassword());
         return new VerificationPage();
     }
 
@@ -28,16 +32,12 @@ public class LoginPage {
     }
 
     public void wrongPassword(DataHelper.AuthInfo authInfo) {
-        loginField.setValue(authInfo.getLogin());
-        passwordField.setValue(DataHelper.getRandomPassword("ru"));
-        loginButton.click();
+        auth(authInfo.getLogin(), authInfo.getPassword());
         errorNotification.shouldBe(Condition.visible);
     }
 
     public void authBeforeBlocked(DataHelper.AuthInfo authInfo) {
-        loginField.setValue(authInfo.getLogin());
-        passwordField.setValue(authInfo.getPassword());
-        loginButton.click();
+        auth(authInfo.getLogin(), authInfo.getPassword());
         errorNotification.shouldBe(Condition.visible);
     }
 
